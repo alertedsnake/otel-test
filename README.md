@@ -66,3 +66,27 @@ DEBUG:ddtrace._worker:Shutting down AgentWriter thread
 DEBUG:ddtrace._worker:Stopping AgentWriter thread
 DEBUG:ddtrace._worker:Stopping AgentWriter thread
 ```
+
+## Discovery
+
+The best way to verify what's going on here is to hack the
+`HTTPConnection.putheader()` method in  `urllib3.connection` such that it
+prints out headers as they're being set.
+
+You'll see this:
+```
+putheader: Host, ('localhost:8000',)
+putheader: Accept-Encoding, ('identity',)
+putheader: X-Amz-Target, (b'DynamoDB_20120810.DescribeTable',)
+putheader: Content-Type, (b'application/x-amz-json-1.0',)
+putheader: User-Agent, (b'Botocore/1.20.19 Python/3.9.2 Linux/5.11.11-200.fc33.x86_64',)
+putheader: X-Amz-Date, (b'20210407T175114Z',)
+putheader: Authorization, (b'AWS4-HMAC-SHA256 Credential=[redacted], SignedHeaders=content-type;host;x-amz-date;x-amz-target, Signature=[redacted]',)
+putheader: x-datadog-trace-id, (b'4114137752167852186',)
+putheader: x-datadog-parent-id, (b'16388060792200103103',)
+putheader: x-datadog-sampling-priority, (b'1',)
+putheader: x-datadog-origin, (None,)
+```
+
+As you can see with that last one, `None` is being provided.
+
