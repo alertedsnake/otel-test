@@ -1,0 +1,5 @@
+grpcio-tools~=1.36
+grpcio~=1.36
+googleapis-common-protos
+protobuf~=3.13
+pynamodb~=4.3

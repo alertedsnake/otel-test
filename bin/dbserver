@@ -1,0 +1,66 @@
+#!/usr/bin/env python
+
+import datetime
+import grpc
+import logging
+import proto.widget.widget_pb2 as proto
+import pynamodb.exceptions
+from proto.widget.widget_pb2_grpc import WidgetsServicer, add_WidgetsServicer_to_server
+
+logging.basicConfig(level=logging.DEBUG)
+
+# boto is very verbose with logging, but we don't need that.
+VERBOSELOGGERS = (
+    'botocore',
+    'botocore.credentials',
+    'botocore.vendored.requests.packages.urllib3.connectionpool',
+    'pynamodb.connection.base',
+    'urllib3.connectionpool',
+)
+for logger in VERBOSELOGGERS:
+    logging.getLogger(logger).setLevel(logging.WARNING)
+
+
+DYNAMO_HOST = 'http://localhost:8000'
+
+
+class Servicer(WidgetsServicer):
+    def Get(self, request, context):
+
+        # the PynamoDB model, configured to use amazon/dynamodb-local
+        from server.model import Widget
+        Widget.Meta.host = DYNAMO_HOST
+        try:
+            widget = Widget.get(request.name)
+            return widget.to_protobuf(proto.Widget)
+
+        except pynamodb.exceptions.DoesNotExist:
+            context.abort(grpc.StatusCode.NOT_FOUND, f"No such widget, {request.name}")
+
+
+    def Create(self, request, context):
+        # the PynamoDB model, configured to use amazon/dynamodb-local
+        from server.model import Widget
+        Widget.Meta.host = DYNAMO_HOST
+
+        widget = Widget(
+            name        = request.name,
+            description = request.description,
+            create_time = datetime.datetime.utcnow(),
+        )
+        widget.save()
+
+        return widget.to_protobuf(proto.Widget)
+
+
+
+if __name__ == '__main__':
+
+    from server import GrpcServer
+
+    server = GrpcServer(
+        name   = 'dbserver',
+        listen = 'localhost:50052',
+    )
+    server.add_servicer(add_WidgetsServicer_to_server, Servicer())
+    server.run()

@@ -1,0 +1,32 @@
+#!/usr/bin/env python
+
+import argparse
+import grpc
+
+from proto.widget.widget_pb2_grpc import WidgetsStub
+import proto.widget.widget_pb2 as proto
+
+PROXY = 'localhost:50051'
+DBSERVER = 'localhost:50052'
+
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('which', choices=('dbserver', 'proxy'), default='proxy')
+
+    opts = parser.parse_args()
+
+    target = PROXY
+    if opts.which == 'dbserver':
+        target = DBSERVER
+
+    with grpc.insecure_channel(target) as channel:
+        stub = WidgetsStub(channel)
+        resp = stub.Get(proto.WidgetRequest(name = "one"))
+        print(resp)
+
+        #resp = stub.Create(proto.Widget(
+        #    name        = "foo",
+        #    description = "a test widget",
+        #))

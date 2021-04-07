@@ -1,0 +1,20 @@
+#!/usr/bin/env python
+
+
+DYNAMO_HOST = 'http://localhost:8000'
+
+
+if __name__ == '__main__':
+    import datetime
+    from server.model import Widget
+    Widget.Meta.host = DYNAMO_HOST
+    Widget.Meta.region = 'us-east-1'
+
+    Widget.create_table()
+
+    w = Widget(
+        name        = 'one',
+        description = 'test thingy',
+        create_time = datetime.datetime.utcnow(),
+    )
+    w.save()

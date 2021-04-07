@@ -1,0 +1,47 @@
+#!/usr/bin/env python
+
+import grpc
+import logging
+import proto.widget.widget_pb2 as proto
+from proto.widget.widget_pb2_grpc import WidgetsStub, WidgetsServicer, add_WidgetsServicer_to_server
+
+logging.basicConfig(level=logging.DEBUG)
+
+# boto is very verbose with logging, but we don't need that.
+VERBOSELOGGERS = (
+    'botocore',
+    'botocore.credentials',
+    'botocore.vendored.requests.packages.urllib3.connectionpool',
+    'pynamodb.connection.base',
+    'urllib3.connectionpool',
+)
+for logger in VERBOSELOGGERS:
+    logging.getLogger(logger).setLevel(logging.WARNING)
+
+
+DYNAMO_HOST = 'http://localhost:8000'
+DBSERVER = 'localhost:50052'
+
+log = logging.getLogger(__name__)
+
+
+class Servicer(WidgetsServicer):
+    def Get(self, request, context):
+        log.info("get request")
+
+        channel = grpc.insecure_channel(DBSERVER)
+        stub = WidgetsStub(channel)
+        return stub.Get(proto.WidgetRequest(name = request.name))
+
+
+
+if __name__ == '__main__':
+
+    from server import GrpcServer
+
+    server = GrpcServer(
+        name   = 'proxy',
+        listen = 'localhost:50051',
+    )
+    server.add_servicer(add_WidgetsServicer_to_server, Servicer())
+    server.run()

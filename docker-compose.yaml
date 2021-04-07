@@ -1,0 +1,22 @@
+version: "3"
+
+services:
+  datadog:
+    image: datadog/agent:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /proc/:/host/proc/:ro
+      - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+    ports:
+      - 8126:8126/tcp
+      - 8125:8125/udp
+    environment:
+      DD_API_KEY:               ${DD_API_KEY}
+      DD_APM_ENABLED:           "true"
+      DD_PROCESS_AGENT_ENABLED: "false"
+      DD_LOGS_ENABLED:          "false"
+
+  dynamo:
+    image: amazon/dynamodb-local
+    ports:
+      - 8000:8000

@@ -1,0 +1,24 @@
+ 
+syntax = "proto3";
+
+package widget;
+
+import "google/protobuf/empty.proto";
+import "google/protobuf/timestamp.proto";
+
+message Widget {
+    string                    name          = 1;
+    string                    description   = 2;
+    google.protobuf.Timestamp create_time   = 10;
+}
+
+message WidgetRequest {
+    string name = 1;
+}
+
+service Widgets {
+    rpc Get(WidgetRequest)          returns (Widget) {};
+    rpc Create(Widget)              returns (Widget) {};
+    rpc List(google.protobuf.Empty) returns (stream Widget) {};
+    rpc Delete(WidgetRequest)       returns (google.protobuf.Empty) {};
+}

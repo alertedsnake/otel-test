@@ -1,0 +1,16 @@
+# python
+*.pyc
+__pycache__/*
+*.so
+
+# testing
+.venv
+.tox
+.cache
+
+
+# editor stuff
+.*.swp
+.*.swo
+.idea/
+.vscode/
