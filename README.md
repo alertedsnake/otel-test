@@ -4,6 +4,7 @@ Setup:
   
 * put your Datadog API key in environment variable `$DD_API_KEY`
 * run `docker-compose up -d`
+* setup a virtualenv with all the otel dependencies from main branches
 * run `bin/createdb` to create the Dynamo table
 * run `bin/dbserver` to run the server
 * run (in another terminal) `bin/client dbserver` to make a request.
