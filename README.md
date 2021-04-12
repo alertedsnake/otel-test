@@ -3,6 +3,9 @@ A test case for the issue described in https://github.com/open-telemetry/opentel
 Setup:
   
 * put your Datadog API key in environment variable `$DD_API_KEY`
+* set environment variables:
+  * `AWS_ACCESS_KEY_ID=X`
+  * `AWS_SECRET_ACCESS_KEY=X`
 * run `docker-compose up -d`
 * setup a virtualenv with all the otel dependencies from main branches
 * run `bin/createdb` to create the Dynamo table
